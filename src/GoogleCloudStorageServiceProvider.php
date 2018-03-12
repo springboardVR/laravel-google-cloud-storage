@@ -17,10 +17,21 @@ class GoogleCloudStorageServiceProvider extends ServiceProvider
     {
         $factory = $this->app->make('filesystem'); /* @var FilesystemManager $factory */
         $factory->extend('gcs', function ($app, $config) {
-            $storageClient = new StorageClient([
+
+
+            $storageClientSettings = [
                 'projectId' => $config['project_id'],
-                'keyFilePath' => array_get($config, 'key_file'),
-            ]);
+            ];
+
+            if (array_get($config, 'key_file_path')) {
+                $storageClientSettings['keyFilePath'] = array_get($config, 'key_file_path');
+            } else {
+                $storageClientSettings['keyFile'] = array_get($config, 'key_file');
+            }
+
+            $storageClient = new StorageClient($storageClientSettings);
+
+
             $bucket = $storageClient->bucket($config['bucket']);
             $pathPrefix = array_get($config, 'path_prefix');
             $storageApiUri = array_get($config, 'storage_api_uri');
